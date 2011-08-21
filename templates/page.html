@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{% block title %}{{ page['name'] }}{% end %} - nete</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css"></link>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+    <script type="text/javascript">
+$(function() {
+    var nete_api = new NeteAPI();
+    var page = $('#my_page').Page({nete_api: nete_api,
+                                   page_id: '{{ page.id }}'});
+
+    var page_index = $('#my_page_bar').PageIndex({nete_api: nete_api,
+                                                  current_page_id: '{{ page.id }}',
+                                                  page: page});
+
+    $('.change_note').click(function(e) {
+        var obj = $(this);
+        var nete_id = obj.parent('.nete-document').attr('data-nete-id');
+        alert('data_nete_id='+data_nete_id);
+    });
+});
+    </script>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">nete: {{ page['name'] }}</div>
+  
+      <div id="my_page_bar"></div>
+      <div id="my_page"></div>
+      
+      <div id="footer">footer</div>
+    </div>
+  </body>
+</html>
