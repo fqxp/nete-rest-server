@@ -1,0 +1,2 @@
+class DocumentTypeNotRegistered(Exception):
+    pass

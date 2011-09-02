@@ -1,12 +1,10 @@
-from nete.db import nete_db, Page, nete_document_registry,\
-    DocumentTypeNotRegistered, NeteDocument
 from tornado import template, httpserver
+import datetime
+import json
+import logging
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import json
-import logging
-import datetime
 import uuid
 
 __all__ = [u'convert_doc_to_json', u'convert_json_to_doc',]
@@ -18,37 +16,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 tmpl_loader = template.Loader(u'./templates')
-
-def convert_doc_to_json(doc):
-    # Unwrap possible multiple wrappings
-    while isinstance(doc, NeteDocument):
-        doc = doc.unwrap()
-
-    if isinstance(doc, dict):
-        v = {}
-        for key, value in doc.iteritems():
-            if key in (u'_id', u'_rev'):
-                key = key[1:]
-            v[key] = convert_doc_to_json(value)
-    elif isinstance(doc, list):
-        v = []
-        for value in doc:
-            v.append(convert_doc_to_json(value))
-    elif type(doc) in (int, long, float, unicode, str):
-        v = doc
-    else:
-        v = unicode(doc)
-        
-    return v
-    
-def convert_json_to_doc(doc):
-    if u'id' in doc:
-        doc[u'_id'] = doc[u'id']
-        del doc[u'id']
-    if 'rev' in doc:
-        doc[u'_rev'] = doc[u'rev']
-        del doc[u'rev']
-    return doc
 
 class NeteApiError(Exception):
     def __init__(self, message, **kwargs):
@@ -73,7 +40,7 @@ class PageHandler(tornado.web.RequestHandler):
 
 class ApiHandler(tornado.web.RequestHandler):
     content_type = u'application/json'
-
+    
     def send_error(self, status_code, message=None, exception=None, **kwargs):
         if self._headers_written:
             logging.error("Cannot send error response after headers written")
@@ -100,27 +67,60 @@ class ListApiHandler(ApiHandler):
         self.finish(json.dumps(map(convert_doc_to_json, Page.all())))
 
 class ObjectApiHandler(ApiHandler):
+    nete_doc_schema = NeteDocumentSchema()
+    
     def get(self, nete_id):
+        self.set_header(u'Content-Type', u'application/json')
+        include_children = self.get_argument(u'include-children', None) == u'true'
+
         doc = nete_db.get(nete_id) #@UndefinedVariable
+        self.nete_doc_schema.validate(doc, partial=True)
         if u'type' not in doc:
             raise NeteApiError(u'\'type\' attribute missing from document', doc=doc)
         else:
-            if self.get_argument(u'include-children', None) == u'true':
-                doc[u'children'] = list(NeteDocument.by_parent_id(nete_db)
-                                        [[doc.id]:[doc.id, u'ZZZZZZZZZZZZZZZZ']])
-            self.finish(json.dumps(convert_doc_to_json(doc)))
+#            if include_children:
+#                doc[u'children'] = list(NeteDocument.by_parent_id(nete_db)
+#                                        [[doc.id]:[doc.id, u'ZZZZZZZZZZZZZZZZ']])
+            self.finish(json.dumps(NeteJsonConverter(self.nete_doc_schema).from_schema(doc)))
 
     def delete(self, nete_id):
+        self.set_header(u'Content-Type', u'application/json')
+
         doc = nete_db.get(nete_id)
         if doc is not None:
             nete_db.delete(doc)
         self.finish(json.dumps({u'success': True}))
         
     def put(self, nete_id):
-        """ Create or update a document.
-        """
-        logger.debug(u'REQUESTZ: %r' % self.request.arguments)
+        """ Create or update a complete document.
         
+        Data is provided in JSON format.
+        """
+        logger.debug('content-type: %s' % self.request.headers.get('Content-Type'))
+        if not self.request.headers.get(u'Content-Type') == u'application/json':
+            raise NeteApiError(u'Content type must be application/json for PUT requests')
+            
+        logger.debug('body: %r' % json.loads(self.request.body))
+        json_doc = json.loads(self.request.body)
+        doc = convert_json_to_doc(json_doc)
+        
+        if nete_id == u'':
+            # Create
+            nete_document_registry.create_document_instance(doc[u'type'])
+                
+            if u'_id' not in doc:
+                doc[u'_id'] = uuid.uuid4().hex
+            doc[u'created'] = datetime.datetime.utcnow()
+        else:
+            # Update
+            pass
+         
+
+    def post(self, nete_id):
+        """ Create or update an incomplete document.
+        
+        Data is provided in URL-encoded format.
+        """
         update_doc = {}
         for key, value in self.request.arguments.iteritems():
             if key in (u'id', u'rev'):

@@ -16,7 +16,7 @@ Version 1 (basic note management)
 * try to use #! URL notation for everything
 * try to use MVC module?
 
-Version (basic page management)
+Version 2 (basic page management)
 -------------------------------
 ### Web GUI
 * edit page name (double-click on page index entry->convert to text field?)
@@ -24,3 +24,8 @@ Version (basic page management)
 * delete page
 * change sort order (drag'n'drop)
 * collect ideas for sub-pages
+
+Version 3 (improved note management)
+------------------------------------
+### Web GUI
+* change sort order
