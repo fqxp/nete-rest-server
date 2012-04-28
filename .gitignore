@@ -1,0 +1,4 @@
+.vim/bundle/*
+*.pyc
+.ropeproject
+.virtualenv
