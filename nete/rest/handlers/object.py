@@ -1,8 +1,6 @@
 from nete.db.exceptions import NeteObjectNotFound
-#from nete.db.models import NeteJsonConverter
 from nete.db.registry import NeteDocumentRegistry, get_document_schema
 from nete.db.exceptions import NeteObjectNotFound
-from nete.rest.exceptions import ValidationError, NeteApiError
 from nete.rest.handlers.base import BaseApiHandler
 from tornado.web import HTTPError
 import httplib
@@ -18,13 +16,6 @@ class ObjectApiHandler(BaseApiHandler):
             doc = self.nete_db.get_by_path(path)
         except NeteObjectNotFound:
             raise HTTPError(404, "Document at '%s' could not be found" % path)
-
-        #if u'type' not in doc:
-            #raise NeteApiError(httplib.BAD_REQUEST,
-                #u'Document is invalid - \'type\' attribute is missing')
-        #else:
-            #nete_doc = NeteJsonConverter(doc.schema).from_schema(doc)
-            #self.set_header(u'Content-Type', u'application/json')
 
         buffer = json.dumps(doc)
         if callback:

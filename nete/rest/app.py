@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of nete.
-#
-# Copyright (C) 2011  Frank Ploss
-
 import logging
 from tornado.web import Application
 from nete.rest.handlers.object import ObjectApiHandler
@@ -16,7 +10,7 @@ class RestApplication(Application):
             #(r'^/rest(?P<path>/.*)$', RestProxyHandler),
             #(r'/_children', TreeApiHandler),
             #(r'/(.*)/_children$', TreeApiHandler),
-            (r'/(.+)$', ObjectApiHandler),
+            (r'/(.+)$', ObjectApiHandler, {'nete_db': nete_db}),
         ]
 
         super(RestApplication, self).__init__(

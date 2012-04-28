@@ -1,7 +1,6 @@
 from nete.db.exceptions import NetePathNotFound
 import json
 import os.path
-from nete.db.exceptions import NeteException
 
 class FilesystemStore(object):
 
