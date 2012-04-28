@@ -19,16 +19,17 @@ class ObjectApiHandler(BaseApiHandler):
         except NeteObjectNotFound:
             raise HTTPError(404, "Document at '%s' could not be found" % path)
 
-        if u'type' not in doc:
-            raise NeteApiError(httplib.BAD_REQUEST,
-                u'Document is invalid - \'type\' attribute is missing')
-        else:
+        #if u'type' not in doc:
+            #raise NeteApiError(httplib.BAD_REQUEST,
+                #u'Document is invalid - \'type\' attribute is missing')
+        #else:
             #nete_doc = NeteJsonConverter(doc.schema).from_schema(doc)
             #self.set_header(u'Content-Type', u'application/json')
-            buffer = json.dumps(doc)
-            if callback:
-                buffer = u'%s(%s)' % (callback, buffer)
-            self.finish(buffer)
+
+        buffer = json.dumps(doc)
+        if callback:
+            buffer = u'%s(%s)' % (callback, buffer)
+        self.finish(buffer)
 
     def delete(self, path):
         self.set_header(u'Content-Type', u'application/json')

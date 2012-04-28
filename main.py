@@ -7,7 +7,6 @@
 from nete.db.filesystem_store import FilesystemStore
 import logging
 import nete.rest.app
-import nete.web.app
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
