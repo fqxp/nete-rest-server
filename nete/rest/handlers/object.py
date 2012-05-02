@@ -1,6 +1,5 @@
-from nete.db.exceptions import NeteObjectNotFound
+from nete.exceptions import ObjectNotFound
 from nete.db.registry import NeteDocumentRegistry, get_document_schema
-from nete.db.exceptions import NeteObjectNotFound
 from nete.rest.handlers.base import BaseApiHandler
 from tornado.web import HTTPError
 import httplib
@@ -14,7 +13,7 @@ class ObjectApiHandler(BaseApiHandler):
         callback = self.get_argument(u'_callback', None)
         try:
             doc = self.nete_db.get_by_path(path)
-        except NeteObjectNotFound:
+        except ObjectNotFound:
             raise HTTPError(404, "Document at '%s' could not be found" % path)
 
         buffer = json.dumps(doc)
@@ -27,7 +26,7 @@ class ObjectApiHandler(BaseApiHandler):
 
         try:
             self.nete_db.delete(path)
-        except NeteObjectNotFound as e:
+        except ObjectNotFound as e:
             raise HTTPError(404)
 
         self.finish(json.dumps({u'success': True}))

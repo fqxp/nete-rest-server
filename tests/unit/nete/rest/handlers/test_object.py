@@ -1,9 +1,8 @@
 import mock
 import tornado.web
 import unittest
-from nete.db.exceptions import NeteObjectNotFound
+from nete.exceptions import ObjectNotFound, NeteApiError
 from nete.rest.handlers.object import ObjectApiHandler
-from nete.rest.exceptions import NeteApiError
 
 class TestObjectApiHandler(unittest.TestCase):
 
@@ -23,7 +22,7 @@ class TestObjectApiHandler(unittest.TestCase):
         self.nete_db_mock.get_by_path.assert_called_once_with('foo/bar')
 
     def test_get_returns_404_when_document_does_not_exist(self):
-        self.nete_db_mock.get_by_path.side_effect = NeteObjectNotFound
+        self.nete_db_mock.get_by_path.side_effect = ObjectNotFound
 
         with self.assertRaises(tornado.web.HTTPError) as cm:
             self.handler.get('foo/bar')
@@ -69,7 +68,7 @@ class TestObjectApiHandler(unittest.TestCase):
         self.handler.finish.assert_called_once_with('{"success": true}')
 
     def test_delete_returns_404_when_object_does_not_exist(self):
-        self.nete_db_mock.delete = mock.Mock(side_effect=NeteObjectNotFound())
+        self.nete_db_mock.delete = mock.Mock(side_effect=ObjectNotFound())
 
         with self.assertRaises(tornado.web.HTTPError) as cm:
             self.handler.delete('foo/bar')

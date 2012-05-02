@@ -1,4 +1,4 @@
-from nete.db.exceptions import NetePathNotFound
+from nete.exceptions import ObjectNotFound
 import json
 import os.path
 
@@ -11,7 +11,7 @@ class FilesystemStore(object):
         full_path = self._full_path(path)
 
         if not os.path.exists(full_path):
-            raise NetePathNotFound("Nete object with path %s could not be found" % path)
+            raise ObjectNotFound("Nete object with path %s could not be found" % path)
 
         return json.load(open(full_path, 'r'))
 

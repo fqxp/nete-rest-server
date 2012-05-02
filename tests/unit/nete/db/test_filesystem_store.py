@@ -1,4 +1,4 @@
-from nete.db.exceptions import NeteException, NetePathNotFound
+from nete.exceptions import NeteException, ObjectNotFound
 from nete.db.filesystem_store import FilesystemStore
 import mock
 import unittest
@@ -21,12 +21,12 @@ class TestFilesystemStore(unittest.TestCase):
 
         open_mock.assert_called_once_with('/foo/bar', 'r')
 
-    def test_get_by_path_with_non_existing_file_raises_NetePathNotFound_exception(self):
+    def test_get_by_path_with_non_existing_file_raises_ObjectNotFound_exception(self):
         os_path_exists_mock = mock.MagicMock()
         os_path_exists_mock.return_value = False
 
         with mock.patch('os.path.exists', os_path_exists_mock):
-            with self.assertRaises(NetePathNotFound):
+            with self.assertRaises(ObjectNotFound):
                 self.fs_store.get_by_path('foo')
 
     def test_delete_removes_file_from_filesystem(self):
