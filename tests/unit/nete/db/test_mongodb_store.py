@@ -27,19 +27,6 @@ class TestMongoDbStore(unittest.TestCase):
         with self.assertRaises(ObjectNotFound):
             self.mongodb_store.get(uuid.UUID('bde705f7237744d2a9723aa14fc30ed6'))
 
-    def test_get_by_path_reads_object_from_mongodb(self):
-        self.collection_mock.find_one = mock.MagicMock(return_value={'foo': 'bar'})
-
-        self.assertEquals({'foo': 'bar'}, self.mongodb_store.get_by_path('foo/bar'))
-
-        self.collection_mock.find_one.assert_called_once_with({'path': 'foo/bar'})
-
-    def test_get_by_path_with_non_existing_file_raises_ObjectNotFound(self):
-        self.collection_mock.find_one = mock.MagicMock(return_value = None)
-
-        with self.assertRaises(ObjectNotFound):
-            self.mongodb_store.get_by_path('foo/bar')
-
     def test_create_saves_object_in_database(self):
         self.collection_mock.save = mock.MagicMock(
                 return_value = uuid.UUID('3aeea398f18149248206d469fc9a7b90'))

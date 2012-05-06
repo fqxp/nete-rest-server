@@ -9,90 +9,48 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ObjectApiHandler(BaseApiHandler):
-    def get(self, path):
+    def get(self, obj_id):
         callback = self.get_argument(u'_callback', None)
         try:
-            doc = self.nete_db.get_by_path(path)
+            doc = self.nete_db.get(obj_id)
         except ObjectNotFound:
-            raise HTTPError(404, "Document at '%s' could not be found" % path)
+            raise HTTPError(404, 'Object with id %s not found' % obj_id)
 
         buffer = json.dumps(doc)
         if callback:
             buffer = u'%s(%s)' % (callback, buffer)
         self.finish(buffer)
 
-    def delete(self, path):
-        self.set_header(u'Content-Type', u'application/json')
-
+    def delete(self, obj_id):
         try:
-            self.nete_db.delete(path)
+            self.nete_db.delete(obj_id)
         except ObjectNotFound as e:
-            raise HTTPError(404)
+            raise HTTPError(404, 'Object with id %s not found' % obj_id)
 
-        self.finish(json.dumps({u'success': True}))
+        self.finish(json.dumps({'success': True}))
 
-    def put(self, path):
-        data = None
+    def put(self):
         try:
             data = json.loads(self.request.body)
         except ValueError as e:
-            raise HTTPError(500)
+            logger.error(e)
+            raise HTTPError(500, 'JSON data could not be parsed')
 
-        self.nete_db.create(path, data)
+        obj_id = self.nete_db.create(data)
 
-        self.finish(json.dumps({u'success': True}))
+        self.finish(json.dumps({'success': True, '_id': obj_id}))
 
-    #def post(self, nete_id):
-        #if not self.request.headers.get(u'Content-Type') == u'application/x-www-form-urlencoded':
-            #raise NeteApiError(httplib.NOT_ACCEPTABLE, 
-                #u'Content type must be application/x-www-form-urlencoded for POST requests')
+    def post(self, obj_id):
+        try:
+            data = json.loads(self.request.body)
+        except ValueError as e:
+            logger.error(e)
+            raise HTTPError(500, 'JSON data could not be parsed')
 
-        #doc = self._parse_form_data()
+        try:
+            self.nete_db.update(obj_id, data)
+        except ObjectNotFound as e:
+            logger.error(e)
+            raise HTTPError(404, 'Object with id %s not found' % obj_id)
 
-        #if u'_id' in doc and nete_id != doc[u'_id']:
-            #raise NeteApiError(httplib.BAD_REQUEST, 
-                #u'The id in the URL doesn\'t equal the id in the arguments')
-
-        #if u'type' in doc and doc[u'type'] != nete_doc[u'type']:
-            #raise NeteApiError(httplib.BAD_REQUEST, 
-                #u'Cannot change type of existing document')
-
-        #if u'_rev' not in doc:
-            #raise NeteApiError(httplib.BAD_REQUEST, 
-                #u'When updating an existing document, a revision has to be provided')
-        #if nete_doc.rev != doc[u'_rev']:
-            #raise NeteApiError(httplib.CONFLICT, 
-                #u'Revision conflict - tried to update document revision %s, but newest version is %s'
-                #% (doc[u'_rev'], nete_doc.rev))
-
-        #update_recursive(nete_doc, doc)
-        #nete_doc[u'updated'] = datetime.datetime.utcnow()
-
-        #nete_doc.save(self.nete_db)
-
-        #logger.debug(u'Updated document %s@%s' % (nete_doc.id, nete_doc.rev))
-
-        #self.finish(json.dumps({u'success': True,
-                                #u'id': nete_doc.id,
-                                #u'rev': nete_doc.rev}))
-
-    #def _parse_request_doc(self):
-        #if self.request.body:
-            #json_doc = json.loads(self.request.body)
-        #else:
-            ## probably a JSONP request
-            #json_doc = self.request.arguments
-
-        #return json_doc
-
-    #def _parse_form_data(self):
-        #try:
-            #nete_doc = self.nete_db.get(nete_id)
-        #except DocumentNotFound:
-            #raise NeteApiError(httplib.NOT_FOUND, u'Document %s doesn\'t exist' %
-                               #nete_id)
-
-        #update_doc = dict((key, value[0])
-                          #for key, value in self.request.arguments.iteritems())
-
-        #return convert_from_nete_json(update_doc, nete_doc[u'type'])
+        self.finish(json.dumps({'success': True}))

@@ -4,29 +4,34 @@ import tornado.httpclient
 import tornado.testing
 from nete.rest.app import RestApplication
 from nete.db.filesystem_store import FilesystemStore
+from nete.db.mongodb_store import MongoDbStore
 
 class RestApiTest(tornado.testing.AsyncHTTPTestCase):
+    nete_db = MongoDbStore('127.0.0.1', 27017, 'nete_test', 'notes')
+    app = RestApplication(nete_db)
+
     def setUp(self):
         super(RestApiTest, self).setUp()
-        os.makedirs('/tmp/test_nete')
-        with open('/tmp/test_nete/foo', 'w') as f:
-            f.write('{"foo": "bar"}')
         self.client = tornado.httpclient.AsyncHTTPClient(self.io_loop)
 
     def tearDown(self):
         super(RestApiTest, self).tearDown()
-        os.remove('/tmp/test_nete/foo')
-        os.rmdir('/tmp/test_nete')
 
     def get_app(self):
-        return RestApplication(FilesystemStore('/tmp/test_nete'))
+        return self.app
 
     def test_http_get_returns_saved_object(self):
-        self.client.fetch(self.get_url('/foo'), self.stop)
-        response = self.wait()
-        json_response = json.loads(response.body)
+      put_request = tornado.httpclient.HTTPRequest(self.get_url('/'), method='PUT',
+            body='{"foo": "bar"}')
+      self.client.fetch(put_request, self.stop)
+      response = self.wait()
+      json_response = json.loads(response.body)
 
-        self.assertEquals({'foo': 'bar'}, json_response)
+      self.client.fetch(self.get_url('/%s' % json_response['_id']), self.stop)
+      response = self.wait()
+      json_response = json.loads(response.body)
+
+      self.assertEquals({'foo': 'bar', '_id': json_response['_id']}, json_response)
 
     def test_http_get_non_existing_object_returns_failure(self):
         self.client.fetch(self.get_url('/bar'), self.stop)

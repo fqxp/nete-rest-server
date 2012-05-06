@@ -16,12 +16,8 @@ class MongoDbStore(object):
 
         return obj
 
-    def get_by_path(self, path):
-        obj = self.collection.find_one({'path': path})
-        if obj is None:
-            raise ObjectNotFound('Could not find object with path %s' % path)
-
-        return obj
+    def get_children(self, obj_id=None):
+        return [obj for obj in self.collection.find()]
 
     def create(self, obj):
         if '_id' not in obj:

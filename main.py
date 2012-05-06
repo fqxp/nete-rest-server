@@ -4,7 +4,7 @@
 # Copyright 2011  Frank Ploss
 # See the file "COPYING" for license details.
 
-from nete.db.filesystem_store import FilesystemStore
+from nete.db.mongodb_store import MongoDbStore
 import logging
 import nete.rest.app
 import tornado.httpserver
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     tornado.options.parse_command_line()
 
-    nete_db = FilesystemStore('./fsdb')
+    nete_db = MongoDbStore('127.0.0.1', 27017, 'nete', 'notes')
 
     logging.info('Starting nete API server on port %d' % API_PORT)
     api_application = nete.rest.app.RestApplication(nete_db, debug=True)
