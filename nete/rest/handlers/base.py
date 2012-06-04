@@ -1,3 +1,4 @@
+import nete.utils
 import httplib
 import logging
 import json
@@ -26,3 +27,6 @@ class BaseApiHandler(tornado.web.RequestHandler):
             error_doc[u'message'] = httplib.responses[status_code]
 
         self.finish(json.dumps(error_doc, skipkeys=True))
+
+    def encode_documents(self, doc):
+        return json.dumps(doc, cls=nete.utils.UUIDEncoder)

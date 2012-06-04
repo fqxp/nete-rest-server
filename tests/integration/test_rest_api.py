@@ -3,7 +3,6 @@ import os
 import tornado.httpclient
 import tornado.testing
 from nete.rest.app import RestApplication
-from nete.db.filesystem_store import FilesystemStore
 from nete.db.mongodb_store import MongoDbStore
 
 class RestApiTest(tornado.testing.AsyncHTTPTestCase):
@@ -20,7 +19,7 @@ class RestApiTest(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):
         return self.app
 
-    def test_http_get_returns_saved_object(self):
+    def test_http_get_returns_saved_document(self):
       put_request = tornado.httpclient.HTTPRequest(self.get_url('/'), method='PUT',
             body='{"foo": "bar"}')
       self.client.fetch(put_request, self.stop)
@@ -33,7 +32,7 @@ class RestApiTest(tornado.testing.AsyncHTTPTestCase):
 
       self.assertEquals({'foo': 'bar', '_id': json_response['_id']}, json_response)
 
-    def test_http_get_non_existing_object_returns_failure(self):
+    def test_http_get_non_existing_document_returns_failure(self):
         self.client.fetch(self.get_url('/bar'), self.stop)
         response = self.wait()
         json_response = json.loads(response.body)
