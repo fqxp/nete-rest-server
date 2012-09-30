@@ -5,13 +5,33 @@
     <link rel="stylesheet" href="/static/css/style.css"></style>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="/static/js/ember.js"></script>
-    <script type="text/x-handlebars" data-template-name="note">
-      {{ note.text }}
-    </script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
     <title>nete</title>
+    <script type="text/x-handlebars" data-template-name="note">
+      <div class="note">
+        <b>{{parentView.content.text}}</b> - {{parentView.content.author}}
+      </div>
+    </script>
   </head>
+
   <body>
+
     <h1>nete</h1>
-  </body>
-  <script type="text/javascript" src="/static/js/app.js"></script>
+
+    <script type="text/x-handlebars">
+      {{#view Ember.Button target="App.notesController" action="loadNotes"}}
+        Load Notes
+      {{/view}}
+
+      {{collection contentBinding="App.notesController" itemViewClass="App.NoteView"}}
+
+      <br/>
+
+      {{#collection contentBinding="App.notesController"}}
+        {{view "App.NoteView" }}
+      {{/collection}}
+
+    </script>
+
+ </body>
 </html>
