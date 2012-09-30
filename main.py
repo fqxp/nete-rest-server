@@ -12,7 +12,7 @@ import tornado.ioloop
 import tornado.options
 
 API_PORT = 8888
-WEB_PORT = 8042
+WEB_PORT = 8080
 
 if __name__ == '__main__':
     logging.basicConfig()
