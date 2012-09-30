@@ -1,11 +1,6 @@
-argparse==1.2.1
--e git://github.com/frankploss/dictlib.git@f160f7d835e8ffa582e02c7bec6bffa6898fe4c8#egg=dictlib-dev
-distribute==0.6.24
 ipython==0.12.1
 mock==0.8.0
 nose==1.1.2
-pymongo==2.2
-termcolor==1.0.1
 tornado==2.2
-wsgiref==0.1.2
-yanc==0.2.3
+mongokit==0.8.0
+-e git://github.com/frankploss/dictlib.git#egg=dictlib
