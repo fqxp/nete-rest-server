@@ -17,6 +17,9 @@ window.App.NoteView = Ember.View.extend({
   }
 });
 
+window.App.NoteEdit = Ember.TextArea.extend({
+});
+
 window.App.pageView = Ember.CollectionView.create({
   content: [],
   itemViewClass: window.App.NoteView
@@ -28,14 +31,13 @@ window.App.notesController = Ember.ArrayController.create({
   content: [],
   loadNotes: function(){
     var self = this;
-    data = [
-      {text: "Das Kapital", author: "Karl Marx"},
-      {text: "Maulwurf Grabowski", author: "N.N."},
-      {text: "Javascript for Losers", author: "Frank Ploss"},
-      {text: "Das einfache Leben", author: "Hermann Gremliza"}
-    ];
-    data.forEach(function(item){
-      self.pushObject(window.App.Note.create(item));
+
+    jQuery.ajax('http://localhost:8888/notes', {
+        success: function(data, textStatus) {
+            data.forEach(function(item){
+              self.pushObject(window.App.Note.create(item));
+            });
+        }
     });
   }
 });
