@@ -7,11 +7,22 @@
     <script type="text/javascript" src="/static/js/ember.js"></script>
     <script type="text/javascript" src="/static/js/app.js"></script>
     <title>nete</title>
+
     <script type="text/x-handlebars" data-template-name="note">
       <div class="note">
         <b>{{parentView.content.text}}</b> - {{parentView.content.author}}
       </div>
     </script>
+
+    <script type="text/x-handlebars" data-template-name="note-edit">
+      <div class="edit-note">
+        {{view Ember.TextArea target="parentView" valueBinding="text" placeholder="Enter your note here"}}
+        {{#view Ember.Button target="parentView" action="createNote"}}
+          create!
+        {{/view}}
+      </div>
+    </script>
+
   </head>
 
   <body>
@@ -23,13 +34,16 @@
         Load Notes
       {{/view}}
 
-      {{collection contentBinding="App.notesController" itemViewClass="App.NoteView"}}
-
-      <br/>
+      <hr/>
 
       {{#collection contentBinding="App.notesController"}}
         {{view "App.NoteView" }}
       {{/collection}}
+
+
+      {{#view Ember.Button target="App.notesController" action="newNote"}}
+        Add note
+      {{/view}}
 
     </script>
 
