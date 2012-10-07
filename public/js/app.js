@@ -22,6 +22,7 @@ window.App.NoteEditView = Ember.View.extend({
 
   createNote: function() {
     var text = this.get("text");
+
     window.App.notesController.createNote(text);
   }
 });
@@ -52,10 +53,11 @@ function generate_uuid()
 // controllers
 window.App.notesController = Ember.ArrayController.create({
   content: [],
+  noteEditor: null,
 
   newNote: function() {
-    var noteEditor = window.App.NoteEditView.create();
-    noteEditor.appendTo('body');
+    this.noteEditor = window.App.NoteEditView.create();
+    this.noteEditor.appendTo('body');
   },
 
   loadNotes: function(){
@@ -77,10 +79,12 @@ window.App.notesController = Ember.ArrayController.create({
       id: generate_uuid(),
       text: text
     });
-
     var data = {
       text: note.text
     };
+
+    this.noteEditor.removeFromParent();
+
     jQuery.ajax('http://localhost:8888/notes/' + id,
         {
           type: 'put',
