@@ -36,9 +36,15 @@ function generate_uuid()
 {
   var S4 = function()
   {
-    return Math.floor(
+    var hex_str = Math.floor(
       Math.random() * 0x10000 /* 65536 */
     ).toString(16);
+
+    for (i=0; i<4-hex_str.length; i++) {
+      hex_str = '0' + hex_str;
+    }
+
+    return hex_str;
   };
 
   return (
@@ -74,6 +80,7 @@ window.App.notesController = Ember.ArrayController.create({
   },
 
   createNote: function(text) {
+    var self = this;
     var id = generate_uuid();
     var note = window.App.Note.create({
       id: generate_uuid(),
@@ -85,13 +92,14 @@ window.App.notesController = Ember.ArrayController.create({
 
     this.noteEditor.removeFromParent();
 
-    jQuery.ajax('http://localhost:8888/notes/' + id,
-        {
-          type: 'put',
-          dataType: 'json',
-          data: JSON.stringify(data)
-        });
-    this.pushObject(note);
+    jQuery.ajax('http://localhost:8888/notes/' + note.id,
+      {
+        type: 'put',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        success: function() {
+          self.pushObject(note);
+        }
+      });
   }
 });
-
