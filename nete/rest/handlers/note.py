@@ -43,4 +43,4 @@ class NoteApiHandler(BaseApiHandler):
 
         self.collection.save(doc)
 
-        self.finish({'success': True})
+        self.finish(self.note_schema.to_json(doc))
