@@ -8,13 +8,16 @@ window.App = Ember.Application.create({
 window.App.Note = Ember.Object.extend({
   id: null,
   text: null,
-  author: null,
+  created_at: null,
+  updated_at: null,
+  updated_at_formatted: function(key, value) {
+    return new Date(this.get('updated_at'));
+  }.property()
 });
 
 // views
 window.App.NoteView = Ember.View.extend({
-  templateName: "note",
-  click: function() {}
+  templateName: "note"
 });
 
 window.App.NoteEditView = Ember.View.extend({
@@ -36,9 +39,15 @@ function generate_uuid()
 {
   var S4 = function()
   {
-    return Math.floor(
+    var hex_str = Math.floor(
       Math.random() * 0x10000 /* 65536 */
     ).toString(16);
+
+    for (i=0; i<4-hex_str.length; i++) {
+      hex_str = '0' + hex_str;
+    }
+
+    return hex_str;
   };
 
   return (
@@ -74,24 +83,24 @@ window.App.notesController = Ember.ArrayController.create({
   },
 
   createNote: function(text) {
+    var self = this;
     var id = generate_uuid();
-    var note = window.App.Note.create({
-      id: generate_uuid(),
-      text: text
-    });
     var data = {
-      text: note.text
+      text: text
     };
 
     this.noteEditor.removeFromParent();
 
     jQuery.ajax('http://localhost:8888/notes/' + id,
-        {
-          type: 'put',
-          dataType: 'json',
-          data: JSON.stringify(data)
-        });
-    this.pushObject(note);
+      {
+        type: 'put',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        success: function(data) {
+          var note = window.App.Note.create(data);
+
+          self.pushObject(note);
+        }
+      });
   }
 });
-

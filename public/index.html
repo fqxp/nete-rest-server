@@ -10,7 +10,10 @@
 
     <script type="text/x-handlebars" data-template-name="note">
       <div class="note">
-        <b>{{parentView.content.text}}</b> - {{parentView.content.author}}
+        <div class="note-updated-at">
+          {{ parentView.content.updated_at_formatted }}
+        </div>
+        <div class="note-text">{{parentView.content.text}}</div>
       </div>
     </script>
 
