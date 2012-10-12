@@ -30,14 +30,11 @@
 
   <body>
 
-    <h1>nete</h1>
+    <div class="top-bar">
+      nete
+    </div>
 
     <script type="text/x-handlebars">
-      {{#view Ember.Button target="App.notesController" action="loadNotes"}}
-        Load Notes
-      {{/view}}
-
-      <hr/>
 
       {{#collection contentBinding="App.notesController"}}
         {{view "App.NoteView" }}
